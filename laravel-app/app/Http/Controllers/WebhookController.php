@@ -21,7 +21,13 @@ class WebhookController extends Controller
         // ハッシュタグを除去した本文を取得する
         $content = $textService->extractBody($text);
 
-        // 本文を返す
-        return response()->json(['content' => $content]);
+        // ハッシュタグを配列で取得する
+        $tags = $textService->extractTags($text);
+
+        // 本文とタグを返す
+        return response()->json([
+            'content' => $content,
+            'tags'    => $tags,
+        ]);
     }
 }
