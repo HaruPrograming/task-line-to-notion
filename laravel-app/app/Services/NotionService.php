@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+
+class NotionService
+{
+    // Notion API のベースURL
+    private const API_BASE = 'https://api.notion.com/v1';
+
+    // Notion API のバージョン（必須ヘッダー）
+    private const API_VERSION = '2022-06-28';
+
+    private string $apiKey;
+    private string $databaseId;
+
+    public function __construct()
+    {
+        // .env から APIキーとデータベースIDを読み込む
+        $this->apiKey     = config('services.notion.api_key');
+        $this->databaseId = config('services.notion.database_id');
+    }
+
+    /**
+     * Notion データベースにページを作成する
+     *
+     * @param string $content タイトルに保存する本文
+     * @param array  $tags    multi_select に保存するタグ一覧
+     */
+    public function createPage(string $content, array $tags): void
+    {
+        // multi_select は [{name: "タグ名"}, ...] の形式が必要
+        $multiSelect = array_map(fn($tag) => ['name' => $tag], $tags);
+
+        // Notion API に送るリクエストボディを組み立てる
+        $body = [
+            // 保存先のデータベースを指定する
+            'parent' => [
+                'database_id' => $this->databaseId,
+            ],
+            // ページのプロパティ（カラム）を設定する
+            'properties' => [
+                // title プロパティに本文を保存する
+                'title' => [
+                    'title' => [
+                        ['text' => ['content' => $content]],
+                    ],
+                ],
+                // tags プロパティにタグを保存する
+                'tags' => [
+                    'multi_select' => $multiSelect,
+                ],
+            ],
+        ];
+
+        // Notion の /v1/pages に POST リクエストを送る
+        Http::withHeaders([
+            'Authorization'  => 'Bearer ' . $this->apiKey,
+            'Notion-Version' => self::API_VERSION,
+        ])->post(self::API_BASE . '/pages', $body);
+    }
+}
