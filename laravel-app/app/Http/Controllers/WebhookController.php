@@ -14,7 +14,10 @@ class WebhookController extends Controller
      */
     public function handle(Request $request): JsonResponse
     {
-        // 固定レスポンスを返す（土台）
-        return response()->json(['message' => 'ok']);
+        // リクエストJSONから "text" フィールドを取得する
+        $text = $request->input('text');
+
+        // 受け取ったテキストをそのまま返す
+        return response()->json(['received' => $text]);
     }
 }
