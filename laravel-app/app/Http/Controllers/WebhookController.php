@@ -6,6 +6,7 @@ use App\Services\NotionService;
 use App\Services\TextService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
 {
@@ -19,19 +20,22 @@ class WebhookController extends Controller
         TextService $textService,
         NotionService $notionService
     ): JsonResponse {
-        // リクエストJSONから "text" フィールドを取得する
-        $text = $request->input('text', '');
+        // LINEからのリクエスト全体ログ
+        Log::info('LINE Request', $request->all());
 
-        // ハッシュタグを除去した本文を取得する
+        // LINE Webhook形式: events[0].message.text からテキストを取得
+        $text = $request->input('events.0.message.text');
+
+        // textが取得できない場合はスキップ（LINEは200必須のため即返却）
+        if ($text === null) {
+            return response()->json(['status' => 'ok']);
+        }
+
+        // タグ抽出・本文抽出・Notion保存
         $content = $textService->extractBody($text);
-
-        // ハッシュタグを配列で取得する
-        $tags = $textService->extractTags($text);
-
-        // Notion データベースにページを作成する
+        $tags    = $textService->extractTags($text);
         $notionService->createPage($content, $tags);
 
-        // 保存した内容を返す
         return response()->json([
             'content' => $content,
             'tags'    => $tags,
