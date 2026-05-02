@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\NotionService;
 use App\Services\TextService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,8 +14,11 @@ class WebhookController extends Controller
      *
      * POST /api/webhook
      */
-    public function handle(Request $request, TextService $textService): JsonResponse
-    {
+    public function handle(
+        Request $request,
+        TextService $textService,
+        NotionService $notionService
+    ): JsonResponse {
         // リクエストJSONから "text" フィールドを取得する
         $text = $request->input('text', '');
 
@@ -24,7 +28,10 @@ class WebhookController extends Controller
         // ハッシュタグを配列で取得する
         $tags = $textService->extractTags($text);
 
-        // 本文とタグを返す
+        // Notion データベースにページを作成する
+        $notionService->createPage($content, $tags);
+
+        // 保存した内容を返す
         return response()->json([
             'content' => $content,
             'tags'    => $tags,
