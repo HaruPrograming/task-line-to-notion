@@ -40,4 +40,8 @@ return [
         'database_id' => env('NOTION_DATABASE_ID'),
     ],
 
+    'line' => [
+        'channel_access_token' => env('LINE_CHANNEL_ACCESS_TOKEN'),
+    ],
+
 ];
