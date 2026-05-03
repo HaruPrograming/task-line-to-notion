@@ -77,38 +77,7 @@ class LineService
             'Authorization' => 'Bearer ' . $this->channelAccessToken,
         ])->post(self::PUSH_URL, [
             'to'       => $userId,
-            'messages' => [
-                [
-                    'type'    => 'flex',
-                    'altText' => $message,
-                    'contents' => [
-                        'type' => 'bubble',
-                        'body' => [
-                            'type'     => 'box',
-                            'layout'   => 'vertical',
-                            'spacing'  => 'sm',
-                            'contents' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $message,
-                                    'wrap' => true,
-                                ],
-                                [
-                                    'type'   => 'text',
-                                    'text'   => 'Notionで確認 →',
-                                    'color'  => '#1DB446',
-                                    'size'   => 'sm',
-                                    'action' => [
-                                        'type'  => 'uri',
-                                        'label' => 'Notionで確認',
-                                        'uri'   => $this->notionUrl,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
+            'messages' => [$this->buildFlexMessage($message)],
         ]);
 
         if ($response->successful()) {
@@ -136,38 +105,41 @@ class LineService
             'Authorization' => 'Bearer ' . $this->channelAccessToken,
         ])->post(self::REPLY_URL, [
             'replyToken' => $replyToken,
-            'messages'   => [
-                [
-                    'type'    => 'flex',
-                    'altText' => $message,
+            'messages'   => [$this->buildFlexMessage($message)],
+        ]);
+    }
+
+    private function buildFlexMessage(string $message): array
+    {
+        return [
+            'type'     => 'flex',
+            'altText'  => $message,
+            'contents' => [
+                'type' => 'bubble',
+                'body' => [
+                    'type'     => 'box',
+                    'layout'   => 'vertical',
+                    'spacing'  => 'sm',
                     'contents' => [
-                        'type' => 'bubble',
-                        'body' => [
-                            'type'     => 'box',
-                            'layout'   => 'vertical',
-                            'spacing'  => 'sm',
-                            'contents' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $message,
-                                    'wrap' => true,
-                                ],
-                                [
-                                    'type'   => 'text',
-                                    'text'   => 'Notionで確認 →',
-                                    'color'  => '#1DB446',
-                                    'size'   => 'sm',
-                                    'action' => [
-                                        'type'  => 'uri',
-                                        'label' => 'Notionで確認',
-                                        'uri'   => $this->notionUrl,
-                                    ],
-                                ],
+                        [
+                            'type' => 'text',
+                            'text' => $message,
+                            'wrap' => true,
+                        ],
+                        [
+                            'type'   => 'text',
+                            'text'   => 'Notionで確認 →',
+                            'color'  => '#1DB446',
+                            'size'   => 'sm',
+                            'action' => [
+                                'type'  => 'uri',
+                                'label' => 'Notionで確認',
+                                'uri'   => $this->notionUrl,
                             ],
                         ],
                     ],
                 ],
             ],
-        ]);
+        ];
     }
 }
