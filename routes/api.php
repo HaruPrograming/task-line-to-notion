@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,5 @@ use Illuminate\Support\Facades\Route;
 // LINE Webhook 受信エンドポイント
 // POST /api/webhook → WebhookController@handle
 Route::post('/webhook', [WebhookController::class, 'handle']);
+
+Route::get('/cron/daily', [CronController::class, 'daily']);

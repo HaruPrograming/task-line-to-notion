@@ -22,6 +22,46 @@ class NotionService
         $this->databaseId = config('services.notion.database_id');
     }
 
+    public function fetchDaily(): array
+    {
+        $response = Http::withHeaders([
+            'Authorization'  => 'Bearer ' . $this->apiKey,
+            'Notion-Version' => self::API_VERSION,
+        ])->post(self::API_BASE . '/databases/' . $this->databaseId . '/query', (object)[]);
+
+        $pages = $response->json('results', []);
+
+        $todayTasks    = [];
+        $tomorrowGoals = [];
+        $allTags       = [];
+
+        foreach ($pages as $page) {
+            $tagOptions = $page['properties']['tags']['multi_select'] ?? [];
+            $tagNames   = array_column($tagOptions, 'name');
+            $title      = $page['properties']['title']['title'][0]['plain_text'] ?? '';
+
+            foreach ($tagNames as $tag) {
+                if (!in_array($tag, $allTags)) {
+                    $allTags[] = $tag;
+                }
+            }
+
+            if (in_array('今日やること', $tagNames)) {
+                $todayTasks[] = $title;
+            }
+
+            if (in_array('目標', $tagNames)) {
+                $tomorrowGoals[] = $title;
+            }
+        }
+
+        return [
+            'today_tasks'    => $todayTasks,
+            'tomorrow_goals' => $tomorrowGoals,
+            'tags'           => $allTags,
+        ];
+    }
+
     /**
      * Notion データベースにページを作成する
      *
