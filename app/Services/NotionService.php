@@ -24,27 +24,37 @@ class NotionService
 
     public function fetchDaily(): array
     {
+        $tz        = new \DateTimeZone('Asia/Tokyo');
+        $yesterday = (new \DateTime('yesterday midnight', $tz))->format(\DateTime::ATOM);
+        $today     = (new \DateTime('today midnight', $tz))->format(\DateTime::ATOM);
+
         $response = Http::withHeaders([
             'Authorization'  => 'Bearer ' . $this->apiKey,
             'Notion-Version' => self::API_VERSION,
-        ])->post(self::API_BASE . '/databases/' . $this->databaseId . '/query', (object)[]);
+        ])->post(self::API_BASE . '/databases/' . $this->databaseId . '/query', [
+            'filter' => [
+                'and' => [
+                    [
+                        'timestamp'    => 'created_time',
+                        'created_time' => ['on_or_after' => $yesterday],
+                    ],
+                    [
+                        'timestamp'    => 'created_time',
+                        'created_time' => ['before' => $today],
+                    ],
+                ],
+            ],
+        ]);
 
         $pages = $response->json('results', []);
 
         $todayTasks       = [];
         $yesterdayResults = [];
-        $allTags          = [];
 
         foreach ($pages as $page) {
             $tagOptions = $page['properties']['tags']['multi_select'] ?? [];
             $tagNames   = array_column($tagOptions, 'name');
             $title      = $page['properties']['title']['title'][0]['plain_text'] ?? '';
-
-            foreach ($tagNames as $tag) {
-                if (!in_array($tag, $allTags)) {
-                    $allTags[] = $tag;
-                }
-            }
 
             if (in_array('明日の目標', $tagNames)) {
                 $todayTasks[] = $title;
@@ -56,9 +66,9 @@ class NotionService
         }
 
         return [
-            'today_tasks'      => $todayTasks,
+            'today_tasks'       => $todayTasks,
             'yesterday_results' => $yesterdayResults,
-            'tags'             => $allTags,
+            'tags'              => $this->fetchTags(),
         ];
     }
 
