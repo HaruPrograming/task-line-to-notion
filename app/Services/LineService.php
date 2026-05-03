@@ -46,9 +46,9 @@ class LineService
         $lines[] = '';
 
         $tagList = !empty($data['tags'])
-            ? implode(' ', array_map(fn($t) => '・' . $t, $data['tags']))
-            : '・なし';
-        $lines[] = '【登録タグ一覧】 ' . $tagList;
+            ? implode(' ', array_map(fn($t) => "#{$t}", $data['tags']))
+            : 'なし';
+        $lines[] = '登録済みタグ: ' . $tagList;
 
         return implode("\n", $lines);
     }
