@@ -34,10 +34,10 @@ class LineService
 
         $lines[] = '';
 
-        $lines[] = '【昨日の目標】';
-        if (!empty($data['tomorrow_goals'])) {
-            foreach ($data['tomorrow_goals'] as $goal) {
-                $lines[] = '・' . $goal;
+        $lines[] = '【昨日の実績】';
+        if (!empty($data['yesterday_results'])) {
+            foreach ($data['yesterday_results'] as $result) {
+                $lines[] = '・' . $result;
             }
         } else {
             $lines[] = '・なし';
