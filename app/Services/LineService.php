@@ -71,6 +71,52 @@ class LineService
         }
     }
 
+    public function pushWithNotionLink(string $userId, string $message): void
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->channelAccessToken,
+        ])->post(self::PUSH_URL, [
+            'to'       => $userId,
+            'messages' => [
+                [
+                    'type'    => 'flex',
+                    'altText' => $message,
+                    'contents' => [
+                        'type' => 'bubble',
+                        'body' => [
+                            'type'     => 'box',
+                            'layout'   => 'vertical',
+                            'spacing'  => 'sm',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => $message,
+                                    'wrap' => true,
+                                ],
+                                [
+                                    'type'   => 'button',
+                                    'style'  => 'link',
+                                    'height' => 'sm',
+                                    'action' => [
+                                        'type'  => 'uri',
+                                        'label' => 'Notionリンク',
+                                        'uri'   => $this->notionUrl,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        if ($response->successful()) {
+            Log::info('LINE push sent', ['userId' => $userId]);
+        } else {
+            Log::error('LINE push failed', ['status' => $response->status(), 'body' => $response->body()]);
+        }
+    }
+
     public function reply(string $replyToken, string $message): void
     {
         Http::withHeaders([
@@ -98,7 +144,7 @@ class LineService
                         'body' => [
                             'type'     => 'box',
                             'layout'   => 'vertical',
-                            'spacing'  => 'md',
+                            'spacing'  => 'sm',
                             'contents' => [
                                 [
                                     'type' => 'text',
@@ -108,6 +154,7 @@ class LineService
                                 [
                                     'type'   => 'button',
                                     'style'  => 'link',
+                                    'height' => 'sm',
                                     'action' => [
                                         'type'  => 'uri',
                                         'label' => 'Notionリンク',
