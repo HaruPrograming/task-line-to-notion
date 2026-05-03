@@ -59,7 +59,6 @@ class LineService
     public function formatEveningMessage(array $data): string
     {
         $lines[] = '夜通知';
-        $lines[] = '';
         $lines[] = 'タグ：#今日の実績';
         $lines[] = '';
         $lines[] = '【今日の目標】';
