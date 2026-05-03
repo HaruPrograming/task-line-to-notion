@@ -10,15 +10,24 @@ class CronController extends Controller
 {
     public function daily(NotionService $notion, LineService $line): JsonResponse
     {
-        $data    = $notion->fetchDaily();
-        $message = $line->formatDailyMessage($data);
-        $userId  = config('services.line.user_id');
+        try {
+            $data    = $notion->fetchDaily();
+            $message = $line->formatDailyMessage($data);
+            $userId  = config('services.line.user_id');
 
-        $line->push($userId, $message);
+            $line->push($userId, $message);
 
-        return response()->json([
-            'status'  => 'ok',
-            'message' => $message,
-        ]);
+            return response()->json([
+                'status'  => 'ok',
+                'message' => $message,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error'  => $e->getMessage(),
+                'file'   => $e->getFile(),
+                'line'   => $e->getLine(),
+            ], 500);
+        }
     }
 }
