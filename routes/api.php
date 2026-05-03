@@ -19,3 +19,4 @@ use Illuminate\Support\Facades\Route;
 Route::post('/webhook', [WebhookController::class, 'handle']);
 
 Route::get('/cron/daily', [CronController::class, 'daily']);
+Route::get('/cron/evening', [CronController::class, 'evening']);

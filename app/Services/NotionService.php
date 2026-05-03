@@ -31,9 +31,9 @@ class NotionService
 
         $pages = $response->json('results', []);
 
-        $todayTasks    = [];
-        $tomorrowGoals = [];
-        $allTags       = [];
+        $todayTasks       = [];
+        $yesterdayResults = [];
+        $allTags          = [];
 
         foreach ($pages as $page) {
             $tagOptions = $page['properties']['tags']['multi_select'] ?? [];
@@ -46,19 +46,19 @@ class NotionService
                 }
             }
 
-            if (in_array('今日やること', $tagNames)) {
+            if (in_array('明日の目標', $tagNames)) {
                 $todayTasks[] = $title;
             }
 
-            if (in_array('目標', $tagNames)) {
-                $tomorrowGoals[] = $title;
+            if (in_array('今日の実績', $tagNames)) {
+                $yesterdayResults[] = $title;
             }
         }
 
         return [
-            'today_tasks'    => $todayTasks,
-            'tomorrow_goals' => $tomorrowGoals,
-            'tags'           => $allTags,
+            'today_tasks'      => $todayTasks,
+            'yesterday_results' => $yesterdayResults,
+            'tags'             => $allTags,
         ];
     }
 
