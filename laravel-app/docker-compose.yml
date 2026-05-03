@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .                  # Dockerfile からビルド
+    ports:
+      - "8000:8000"           # ホストの 8000 → コンテナの 8000
+    volumes:
+      - .:/app                # コードの変更がリアルタイムで反映される
+    environment:
+      APP_ENV: local
+      APP_KEY: base64:dummy   # 起動確認用（後で php artisan key:generate で更新）
