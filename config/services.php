@@ -38,6 +38,7 @@ return [
     'notion' => [
         'api_key'     => env('NOTION_API_KEY'),
         'database_id' => env('NOTION_DATABASE_ID'),
+        'page_url'    => env('NOTION_PAGE_URL'),
     ],
 
     'line' => [
