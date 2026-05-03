@@ -48,7 +48,8 @@ class LineService
         $tagList = !empty($data['tags'])
             ? implode(' ', array_map(fn($t) => "#{$t}", $data['tags']))
             : 'なし';
-        $lines[] = '登録済みタグ: ' . $tagList;
+        $lines[] = '【登録済みタグ】';
+        $lines[] = $tagList;
 
         return implode("\n", $lines);
     }
