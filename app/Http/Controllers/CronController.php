@@ -12,6 +12,9 @@ class CronController extends Controller
     {
         $data    = $notion->fetchDaily();
         $message = $line->formatDailyMessage($data);
+        $userId  = config('services.line.user_id');
+
+        $line->push($userId, $message);
 
         return response()->json([
             'status'  => 'ok',
