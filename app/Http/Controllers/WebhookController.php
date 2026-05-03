@@ -50,7 +50,7 @@ class WebhookController extends Controller
         if ($replyToken) {
             $tagText      = implode(' ', array_map(fn($t) => "#{$t}", $tags));
             $replyMessage = "タグ: {$tagText}\n内容: {$content}\n保存しました！";
-            $lineService->reply($replyToken, $replyMessage);
+            $lineService->replyWithNotionLink($replyToken, $replyMessage);
         }
 
         return response()->json([

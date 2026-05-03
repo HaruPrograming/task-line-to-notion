@@ -11,10 +11,12 @@ class LineService
     private const PUSH_URL  = 'https://api.line.me/v2/bot/message/push';
 
     private string $channelAccessToken;
+    private string $notionUrl;
 
     public function __construct()
     {
         $this->channelAccessToken = config('services.line.channel_access_token');
+        $this->notionUrl          = config('services.notion.page_url') ?? '';
     }
 
     public function formatDailyMessage(array $data): string
@@ -77,6 +79,45 @@ class LineService
             'replyToken' => $replyToken,
             'messages'   => [
                 ['type' => 'text', 'text' => $message],
+            ],
+        ]);
+    }
+
+    public function replyWithNotionLink(string $replyToken, string $message): void
+    {
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->channelAccessToken,
+        ])->post(self::REPLY_URL, [
+            'replyToken' => $replyToken,
+            'messages'   => [
+                [
+                    'type'    => 'flex',
+                    'altText' => $message,
+                    'contents' => [
+                        'type' => 'bubble',
+                        'body' => [
+                            'type'     => 'box',
+                            'layout'   => 'vertical',
+                            'spacing'  => 'md',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => $message,
+                                    'wrap' => true,
+                                ],
+                                [
+                                    'type'   => 'button',
+                                    'style'  => 'link',
+                                    'action' => [
+                                        'type'  => 'uri',
+                                        'label' => 'Notionリンク',
+                                        'uri'   => $this->notionUrl,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ]);
     }
