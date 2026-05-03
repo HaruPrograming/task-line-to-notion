@@ -18,7 +18,6 @@ class CronController extends Controller
 
         return response()->json([
             'status'  => 'ok',
-            'data'    => $data,
             'message' => $message,
         ]);
     }
