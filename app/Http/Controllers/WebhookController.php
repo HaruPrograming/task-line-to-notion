@@ -22,10 +22,21 @@ class WebhookController extends Controller
         NotionService $notionService,
         LineService $lineService
     ): JsonResponse {
-        Log::info('LINE Request', $request->all());
+        Log::channel('single')->info('[WEBHOOK] LINE Request', $request->all());
+
+        foreach ($request->input('events', []) as $event) {
+            Log::channel('single')->info('[WEBHOOK] EVENT', $event);
+
+            if (isset($event['source']['userId'])) {
+                Log::channel('single')->info('[WEBHOOK] USER_ID', [
+                    'userId' => $event['source']['userId'],
+                ]);
+            }
+        }
 
         $text       = $request->input('events.0.message.text');
         $replyToken = $request->input('events.0.replyToken');
+        $userId     = $request->input('events.0.source.userId');
 
         if ($text === null) {
             return response()->json(['status' => 'ok']);
@@ -38,7 +49,7 @@ class WebhookController extends Controller
         // Notion保存後にLINEへ返信
         if ($replyToken) {
             $tagText      = implode(' ', array_map(fn($t) => "#{$t}", $tags));
-            $replyMessage = "タグ: {$tagText}\n内容: {$content}\n保存しました！";
+            $replyMessage = "タグ: {$tagText}\n内容: {$content}\n保存しました！\nUserID: {$userId}";
             $lineService->reply($replyToken, $replyMessage);
         }
 
