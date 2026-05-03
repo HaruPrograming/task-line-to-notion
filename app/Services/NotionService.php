@@ -62,6 +62,18 @@ class NotionService
         ];
     }
 
+    public function fetchTags(): array
+    {
+        $response = Http::withHeaders([
+            'Authorization'  => 'Bearer ' . $this->apiKey,
+            'Notion-Version' => self::API_VERSION,
+        ])->get(self::API_BASE . '/databases/' . $this->databaseId);
+
+        $options = $response->json('properties.tags.multi_select.options', []);
+
+        return array_column($options, 'name');
+    }
+
     /**
      * Notion データベースにページを作成する
      *

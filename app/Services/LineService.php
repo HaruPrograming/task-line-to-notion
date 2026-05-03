@@ -46,9 +46,9 @@ class LineService
         $lines[] = '';
 
         $tagList = !empty($data['tags'])
-            ? implode(' ', array_map(fn($t) => '・' . $t, $data['tags']))
-            : '・なし';
-        $lines[] = '【登録タグ一覧】 ' . $tagList;
+            ? implode(' ', array_map(fn($t) => "#{$t}", $data['tags']))
+            : 'なし';
+        $lines[] = '登録済みタグ: ' . $tagList;
 
         return implode("\n", $lines);
     }
@@ -61,6 +61,52 @@ class LineService
             'to'       => $userId,
             'messages' => [
                 ['type' => 'text', 'text' => $message],
+            ],
+        ]);
+
+        if ($response->successful()) {
+            Log::info('LINE push sent', ['userId' => $userId]);
+        } else {
+            Log::error('LINE push failed', ['status' => $response->status(), 'body' => $response->body()]);
+        }
+    }
+
+    public function pushWithNotionLink(string $userId, string $message): void
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->channelAccessToken,
+        ])->post(self::PUSH_URL, [
+            'to'       => $userId,
+            'messages' => [
+                [
+                    'type'    => 'flex',
+                    'altText' => $message,
+                    'contents' => [
+                        'type' => 'bubble',
+                        'body' => [
+                            'type'     => 'box',
+                            'layout'   => 'vertical',
+                            'spacing'  => 'sm',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => $message,
+                                    'wrap' => true,
+                                ],
+                                [
+                                    'type'   => 'button',
+                                    'style'  => 'link',
+                                    'height' => 'sm',
+                                    'action' => [
+                                        'type'  => 'uri',
+                                        'label' => 'Notionリンク',
+                                        'uri'   => $this->notionUrl,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ]);
 
@@ -98,7 +144,7 @@ class LineService
                         'body' => [
                             'type'     => 'box',
                             'layout'   => 'vertical',
-                            'spacing'  => 'md',
+                            'spacing'  => 'sm',
                             'contents' => [
                                 [
                                     'type' => 'text',
@@ -108,6 +154,7 @@ class LineService
                                 [
                                     'type'   => 'button',
                                     'style'  => 'link',
+                                    'height' => 'sm',
                                     'action' => [
                                         'type'  => 'uri',
                                         'label' => 'Notionリンク',

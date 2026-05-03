@@ -46,10 +46,11 @@ class WebhookController extends Controller
         $tags    = $textService->extractTags($text);
         $notionService->createPage($content, $tags);
 
-        // Notion保存後にLINEへ返信
         if ($replyToken) {
+            $allTags      = $notionService->fetchTags();
             $tagText      = implode(' ', array_map(fn($t) => "#{$t}", $tags));
-            $replyMessage = "タグ: {$tagText}\n内容: {$content}\n保存しました！";
+            $allTagText   = implode(' ', array_map(fn($t) => "#{$t}", $allTags));
+            $replyMessage = "タグ: {$tagText}\n内容: {$content}\n保存しました！\n登録済みタグ: {$allTagText}";
             $lineService->replyWithNotionLink($replyToken, $replyMessage);
         }
 
