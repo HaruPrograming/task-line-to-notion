@@ -23,6 +23,8 @@ class LineService
     {
         $lines = [];
 
+        $lines[] = '朝通知';
+        $lines[] = '';
         $lines[] = '【今日のタスク】';
         if (!empty($data['today_tasks'])) {
             foreach ($data['today_tasks'] as $task) {
@@ -50,6 +52,27 @@ class LineService
             : 'なし';
         $lines[] = '【登録済みタグ】';
         $lines[] = $tagList;
+
+        return implode("\n", $lines);
+    }
+
+    public function formatEveningMessage(array $data): string
+    {
+        $lines[] = '夜通知';
+        $lines[] = '';
+        $lines[] = 'タグ：#今日の実績';
+        $lines[] = '';
+        $lines[] = '【今日の目標】';
+        if (!empty($data['today_tasks'])) {
+            foreach ($data['today_tasks'] as $task) {
+                $lines[] = '・' . $task;
+            }
+        } else {
+            $lines[] = '・なし';
+        }
+        $lines[] = '';
+        $lines[] = '今日もお疲れ様でした。';
+        $lines[] = '今日の実績を入力してください。';
 
         return implode("\n", $lines);
     }
