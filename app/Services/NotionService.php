@@ -25,8 +25,12 @@ class NotionService
     public function fetchDaily(): array
     {
         $tz        = new \DateTimeZone('Asia/Tokyo');
-        $yesterday = (new \DateTime('yesterday midnight', $tz))->format(\DateTime::ATOM);
-        $today     = (new \DateTime('today midnight', $tz))->format(\DateTime::ATOM);
+        $now       = new \DateTime('now', $tz);
+        $today     = new \DateTime($now->format('Y-m-d') . ' 00:00:00', $tz);
+        $yesterday = (clone $today)->modify('-1 day');
+
+        $yesterdayAtom = $yesterday->format(\DateTime::ATOM);
+        $todayAtom     = $today->format(\DateTime::ATOM);
 
         $response = Http::withHeaders([
             'Authorization'  => 'Bearer ' . $this->apiKey,
@@ -36,11 +40,11 @@ class NotionService
                 'and' => [
                     [
                         'timestamp'    => 'created_time',
-                        'created_time' => ['on_or_after' => $yesterday],
+                        'created_time' => ['on_or_after' => $yesterdayAtom],
                     ],
                     [
                         'timestamp'    => 'created_time',
-                        'created_time' => ['before' => $today],
+                        'created_time' => ['before' => $todayAtom],
                     ],
                 ],
             ],

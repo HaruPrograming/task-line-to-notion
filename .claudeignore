@@ -1,0 +1,10 @@
+# シークレット
+.env
+.env.*
+!.env.example
+C:\Users\Harut\.claude\settings.local.json
+C:\Users\Harut\.claude.json
+
+# ログ・キャッシュ
+storage/logs/
+bootstrap/cache/
