@@ -24,7 +24,6 @@ class LineService
         $lines = [];
 
         $lines[] = '朝通知';
-        $lines[] = '';
         $lines[] = '【今日のタスク】';
         if (!empty($data['today_tasks'])) {
             foreach ($data['today_tasks'] as $task) {
@@ -59,7 +58,7 @@ class LineService
     public function formatEveningMessage(array $data): string
     {
         $lines[] = '夜通知';
-        $lines[] = 'タグ：#今日の実績';
+        $lines[] = 'タグ：#今日の実績 #明日の目標';
         $lines[] = '';
         $lines[] = '【今日の目標】';
         if (!empty($data['today_tasks'])) {
@@ -71,7 +70,7 @@ class LineService
         }
         $lines[] = '';
         $lines[] = '今日もお疲れ様でした。';
-        $lines[] = '今日の実績を入力してください。';
+        $lines[] = '今日の実績と明日の目標を入力してください。';
 
         return implode("\n", $lines);
     }
